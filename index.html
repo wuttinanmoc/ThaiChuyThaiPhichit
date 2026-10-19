@@ -87,9 +87,9 @@ main.wrap{padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
 
 .grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:20px;align-items:stretch}
 .grid > .panel{display:flex;flex-direction:column}
-.grid > .panel > .mapbox{flex:1;display:flex;align-items:center;border-radius:0}
+.grid > .panel > .mapbox{border-radius:0}
 .grid > .panel > .mapbox > svg{flex:1 1 auto;width:100%}
-.side > .panel:first-child{flex:1}
+
 @media (max-width:880px){.grid{grid-template-columns:minmax(0,1fr)}}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);min-width:0}
 .ph{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
@@ -190,7 +190,15 @@ td.prep-c{color:var(--muted);font-style:italic}
 td.num,th.num{text-align:right}
 @media (max-width:620px){.hide-s{display:none}}
 .foot{font-size:12px;color:var(--muted)}
-.side{display:flex;flex-direction:column;gap:20px;min-width:0}
+.side{min-width:0;position:relative}
+.side-in{display:flex;flex-direction:column;gap:20px}
+.days{position:relative;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--land-hi) transparent}
+@media (min-width:881px){
+  .side-in{position:absolute;inset:0}
+  .side-in > .panel:first-child{flex:1;min-height:0;display:flex;flex-direction:column}
+  .side-in > .panel:first-child .days{flex:1;min-height:0}
+}
+@media (max-width:880px){ .days{max-height:520px} }
 .goods-list{list-style:none;margin:0;padding:6px 0}
 .good{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:12px 18px}
 .good+.good{border-top:1px solid var(--line)}
@@ -303,7 +311,7 @@ td.num,th.num{text-align:right}
       <div class="info" id="info" aria-live="polite"></div>
     </section>
 
-    <div class="side">
+    <div class="side"><div class="side-in">
     <section class="panel">
       <div class="ph"><h2>กำหนดการรายวัน</h2><span class="sub">เวลาจำหน่าย หรือจนกว่าสินค้าหมด</span><button class="allbtn" id="showall" hidden>แสดงทุกวัน</button></div>
       <ul class="days" id="days"></ul>
@@ -313,7 +321,7 @@ td.num,th.num{text-align:right}
       <div class="ph"><h2>สินค้าไฮไลท์ราคาพิเศษ</h2><span class="sub">ราคาในงานเทียบราคาปกติ</span></div>
       <ul class="goods-list" id="goods"></ul>
     </section>
-    </div>
+    </div></div>
   </div>
 
   <section class="panel">
@@ -525,6 +533,8 @@ function renderDays(){
   const days=vDays();
   days.forEach(([d,l],i)=>l.forEach(s=>row(s,d,i%2===1,s.state,()=>selectDay(selDay===d?null:d))));
   stops.filter(s=>!s.date && inView(s)).forEach(s=>row(s,null,days.length%2===1,'prep',null));
+  const sel=ul.querySelector('[aria-pressed="true"]');
+  if(sel){ const li=sel.parentElement; if(li.offsetTop<ul.scrollTop||li.offsetTop+li.offsetHeight>ul.scrollTop+ul.clientHeight) ul.scrollTop=li.offsetTop-8; }
   el('showall').hidden = !selDay;
 }
 el('showall').onclick=()=>selectDay(null);

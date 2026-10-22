@@ -189,6 +189,7 @@ tr.sel td{background:var(--land-hi)}
 td.prep-c{color:var(--muted);font-style:italic}
 td.num,th.num{text-align:right}
 @media (max-width:620px){.hide-s{display:none}}
+tfoot td{font-weight:700;background:var(--green-soft);border-top:2px solid var(--green);color:var(--ink)}
 .foot{font-size:12px;color:var(--muted)}
 .side{min-width:0;position:relative}
 .side-in{display:flex;flex-direction:column;gap:20px}
@@ -330,6 +331,7 @@ td.num,th.num{text-align:right}
       <table>
         <thead><tr><th>จุดที่</th><th>วันที่</th><th>เวลาจำหน่าย</th><th>สถานที่จัดกิจกรรม</th><th class="hide-s">อำเภอ</th><th>สถานะ</th><th class="num">มูลค่าจำหน่าย (บาท)</th><th class="num">ลดค่าครองชีพ (บาท)</th><th class="num">ร้อยละ</th></tr></thead>
         <tbody id="tbody"></tbody>
+        <tfoot id="tfoot"></tfoot>
       </table>
     </div>
   </section>
@@ -419,9 +421,20 @@ function inView(s){ return curMonth==='all' || s.month===curMonth; }
 const SALES = {
   1: [66700, 33540],
   2: [66700, 33540],
-  3: [66700, 33540]
+  3: [66700, 33540],
+  4: [66700, 33540],
+  5: [66700, 33540],
+  6: [66700, 33540],
+  7: [66700, 33540],
+  8: [66700, 33540],
+  9: [66700, 33540],
+  10: [66700, 33540],
+  11: [66700, 33540],
+  12: [66700, 33540]
 };
 const baht = n => n==null ? '–' : Number(n).toLocaleString('th-TH');
+/* เลขยอดจำหน่ายให้คงที่ 1/36 ถึง 12/36 แต่แสดงผลเฉพาะจุดที่สิ้นสุดเวลาจำหน่ายแล้ว (state === 'done') */
+const saleOf = s => s.state==='done' ? (SALES[s.seq]||[]) : [];
 const ptNo = s => `${s.seq}/${PER_MONTH*3}`;
 const label = s => s.place;
 const stateLabel = {done:'จัดแล้ว',today:'วันนี้',next:'รอดำเนินการ',prep:'อยู่ระหว่างเตรียมการ'};
@@ -550,18 +563,27 @@ function renderFilters(){
 }
 function renderTable(){
   const tb=el('tbody'); tb.textContent='';
-  stops.filter(s=>inView(s)&&(ampFilter==='all'||s.amphoe===ampFilter)).forEach(s=>{
+  const rows=stops.filter(s=>inView(s)&&(ampFilter==='all'||s.amphoe===ampFilter));
+  let sumA=0,sumB=0,has=false;
+  rows.forEach(s=>{
     const dayIdx=s.date?vDays().findIndex(([d])=>d===s.date):vDays().length;
     const tr=make('tr',s.state+(dayIdx%2?' band':'')+(selStop===s?' sel':''));
     const cells=[[ptNo(s),'num'],[s.date?thDMY(s.date):PREP_TXT,s.date?'':'prep-c'],[s.slot?SLOT[s.slot].range.slice(0,5)+' น.':PREP_TXT,s.slot?'':'prep-c'],[label(s)],['อ.'+s.amphoe,'hide-s']];
     cells.forEach(([t,c])=>tr.append(make('td',c||'',t)));
     const td=make('td'); td.append(make('span','pill '+s.state,stateLabel[s.state])); tr.append(td);
-    const sv=SALES[s.seq]||[];
+    const sv=saleOf(s);
+    if(sv[0]!=null){sumA+=sv[0];sumB+=sv[1]||0;has=true;}
     const pct = (sv[0]!=null && sv[1]!=null && (sv[0]+sv[1])>0) ? (sv[1]/(sv[0]+sv[1])*100).toFixed(2) : '–';
     tr.append(make('td','num',baht(sv[0])), make('td','num',baht(sv[1])), make('td','num',pct));
     tr.onclick=()=>{selectStop(s,true); el('mapbox').scrollIntoView({behavior:motionOK?'smooth':'auto',block:'center'});};
     tb.append(tr);
   });
+  const tf=el('tfoot'); tf.textContent='';
+  const ftr=make('tr');
+  ftr.append(make('td',null,''), make('td',null,''), make('td',null,''), make('td',null,`ยอดรวม ${rows.length} จุด`), make('td','hide-s',''), make('td',null,''));
+  const totPct = has&&(sumA+sumB)>0 ? (sumB/(sumA+sumB)*100).toFixed(2) : '–';
+  ftr.append(make('td','num',has?baht(sumA):'–'), make('td','num',has?baht(sumB):'–'), make('td','num',totPct));
+  tf.append(ftr);
 }
 
 /* selection */
@@ -715,7 +737,7 @@ async function igBuild(){
     const y=tableTop+headH+r*rowH, di=s.date?days.indexOf(s.date):days.length;
     ctx.fillStyle=di%2?C.band:'#FFFFFF'; ctx.fillRect(P,y,tw,rowH);
     ctx.fillStyle=C.line; ctx.fillRect(P,y+rowH-1,tw,1);
-    const sv=SALES[s.seq]||[]; if(sv[0]!=null){sumA+=sv[0];sumB+=sv[1]||0;has=true;}
+    const sv=saleOf(s); if(sv[0]!=null){sumA+=sv[0];sumB+=sv[1]||0;has=true;}
     const pct=(sv[0]!=null&&sv[1]!=null&&(sv[0]+sv[1])>0)?(sv[1]/(sv[0]+sv[1])*100).toFixed(2):'–';
     const yy=y+rowH/2;
     cell(ptNo(s),0,yy,600,18,C.ink); cell(s.date?thDMY(s.date):PREP_TXT,1,yy,400,18,s.date?C.ink:C.muted); cell(label(s),2,yy,400,18,C.ink);

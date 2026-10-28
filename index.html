@@ -206,6 +206,8 @@ tfoot td{font-weight:700;background:var(--green-soft);border-top:2px solid var(-
 .g-ic{width:44px;height:44px;color:var(--green);display:grid;place-items:center;grid-row:span 2}
 .g-ic svg{width:34px;height:34px;display:block}
 .g-name{font-weight:600;font-size:15px;color:var(--ink)}
+.good-more{grid-template-columns:1fr;padding:12px 18px}
+.g-more-txt{font-size:14px;color:var(--muted);text-align:center;font-style:italic}
 .g-was{font-size:13px;color:var(--muted)}
 .g-was s{text-decoration-color:var(--cross);text-decoration-thickness:1.5px}
 .g-price{text-align:right;grid-row:span 2;align-self:center}
@@ -332,7 +334,7 @@ tfoot td{font-weight:700;background:var(--green-soft);border-top:2px solid var(-
     <div class="ph"><h2>รายการจุดจำหน่าย</h2><div class="filters" id="filters" role="group" aria-label="กรองตามอำเภอ"></div><button type="button" class="clearbtn" id="clear-table" hidden>✕ ล้างตัวเลือก</button></div>
     <div class="tw">
       <table>
-        <thead><tr><th>จุดที่</th><th>วันที่</th><th>เวลาจำหน่าย</th><th>สถานที่จัดกิจกรรม</th><th class="hide-s">อำเภอ</th><th>สถานะ</th><th class="num">มูลค่าจำหน่าย (บาท)</th><th class="num">ลดค่าครองชีพ (บาท)</th><th class="num">ร้อยละ</th></tr></thead>
+        <thead><tr><th>จุดที่</th><th>วันที่</th><th>เวลาจำหน่าย</th><th>สถานที่จัดกิจกรรม</th><th class="hide-s">ตำบล</th><th class="hide-s">อำเภอ</th><th>สถานะ</th><th class="num">มูลค่าจำหน่าย (บาท)</th><th class="num">ลดค่าครองชีพ (บาท)</th><th class="num">ร้อยละ</th></tr></thead>
         <tbody id="tbody"></tbody>
         <tfoot id="tfoot"></tfoot>
       </table>
@@ -407,7 +409,14 @@ const thDMY = iso => { const d=new Date(iso+'T00:00:00'); return `${d.getDate()}
 const thWk = iso => new Date(iso+'T00:00:00').toLocaleDateString('th-TH',{weekday:'short'});
 const dayNum = iso => +iso.slice(8,10);
 const typeOf = p => p.startsWith('ที่ว่าการ')?'ที่ว่าการอำเภอ':p.startsWith('องค์การบริหาร')?'องค์การบริหารส่วนตำบล':p.startsWith('เทศบาล')?'เทศบาล':p.startsWith('สหกรณ์')?'สหกรณ์':'วัด';
-const stops = ROWS.map(r=>({seq:+r.seq,month:r.month||'oct',date:r.date||null,slot:r.slot||null,place:r.place,note:r.note,amphoe:r.amphoe,type:typeOf(r.place),lat:r.lat?+r.lat:null,lon:r.lon?+r.lon:null,km:r.km_from_prev_same_day===''?null:+r.km_from_prev_same_day}));
+/* ตำบลของแต่ละจุด (ใช้เฉพาะตอนยังไม่ได้ข้อมูลจาก Google Sheet) */
+const TAMBON = {
+  1:'สามง่าม',2:'รังนก',3:'เนินปอ',4:'ตะพานหิน',5:'ห้วยเกตุ',6:'ทับหมัน',
+  7:'โพธิ์ประทับช้าง',8:'โพธิ์ประทับช้าง',9:'โพธิ์ประทับช้าง',10:'บ้านนา',11:'บ้านนา',12:'วังโมกข์',
+  13:'สากเหล็ก',14:'สากเหล็ก',15:'วังทับไทร',16:'หนองพระ',17:'วังทรายพูน',18:'หนองปลาไหล',
+  19:'ทับคล้อ',20:'ทับคล้อ',21:'เขาทราย',22:'ปากทาง',23:'ดงกลาง',24:'ไผ่ท่าโพ'
+};
+const stops = ROWS.map(r=>({seq:+r.seq,month:r.month||'oct',date:r.date||null,slot:r.slot||null,place:r.place,note:r.note,amphoe:r.amphoe,tambon:TAMBON[+r.seq]||null,type:typeOf(r.place),lat:r.lat?+r.lat:null,lon:r.lon?+r.lon:null,km:r.km_from_prev_same_day===''?null:+r.km_from_prev_same_day}));
 function computeStates(){ NOW=bkkNow(); TODAY=NOW.slice(0,10); stops.forEach(s=>s.state = !s.date?'prep':NOW>=s.date+'T'+END[s.slot]?'done':s.date===TODAY?'today':'next'); }
 computeStates();
 const dayState = l => l.every(s=>s.state==='done')?'done':l.some(s=>s.state==='today')?'today':'next';
@@ -457,6 +466,7 @@ const baht = n => n==null ? '–' : Number(n).toLocaleString('th-TH');
 const saleOf = s => s.state==='done' ? [s.saleA,s.saleB] : [];
 const ptNo = s => `${s.seq}/${PER_MONTH*3}`;
 const label = s => s.place;
+const locLabel = s => (s.tambon?`ต.${s.tambon} `:'')+`อ.${s.amphoe}`;
 const stateLabel = {done:'จัดแล้ว',today:'วันนี้',next:'รอดำเนินการ',prep:'อยู่ระหว่างเตรียมการ'};
 const el = id => document.getElementById(id);
 const make = (tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;};
@@ -540,8 +550,8 @@ function renderInfo(){
     const s=selStop;
     box.append(make('div','k',`จุดที่ ${ptNo(s)} · ${stateLabel[s.state]}`), make('div','n',label(s)));
     const m=make('div','meta');
-    if(s.date) m.append(make('span',null,`${thFull(s.date)} ช่วง${s.slot}`), make('span',null,`อ.${s.amphoe}`), make('span',null,`จำหน่ายสินค้า ${sellRange(s)} น. หรือจนกว่าสินค้าหมด`));
-    else m.append(make('span',null,`วันที่และเวลา: ${PREP_TXT}`), make('span',null,`อ.${s.amphoe}`));
+    if(s.date) m.append(make('span',null,`${thFull(s.date)} ช่วง${s.slot}`), make('span',null,locLabel(s)), make('span',null,`จำหน่ายสินค้า ${sellRange(s)} น. หรือจนกว่าสินค้าหมด`));
+    else m.append(make('span',null,`วันที่และเวลา: ${PREP_TXT}`), make('span',null,locLabel(s)));
     if(hasLoc(s)){ const a=make('a',null,'นำทางด้วย Google Maps'); a.href=`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}`; a.target='_blank'; a.rel='noopener'; m.append(a); }
     else m.append(make('span',null,'ตำแหน่งบนแผนที่: '+PREP_TXT));
     box.append(m);
@@ -564,7 +574,7 @@ function renderDays(){
     const cal=make('div','cal'); cal.append(make('div','w',d?thWk(d):'วันที่'), make('div','d',d?dayNum(d):'–'));
     const box=make('div','dstops'), r=make('div','ds');
     r.append(make('span','s',s.slot?`${s.slot} ${sellStart(s)} น.`:'รอกำหนด'), make('span','p',`จุดที่ ${ptNo(s)} ${label(s)}`));
-    const meta=make('div','dmeta'); meta.append(make('span','pill '+st,stateLabel[st]), make('span',null,'อ.'+s.amphoe));
+    const meta=make('div','dmeta'); meta.append(make('span','pill '+st,stateLabel[st]), make('span',null,locLabel(s)));
     box.append(r,meta); b.append(cal,box); li.append(b); ul.append(li);
   };
   const days=vDays();
@@ -592,7 +602,7 @@ function renderTable(){
   rows.forEach(s=>{
     const dayIdx=s.date?vDays().findIndex(([d])=>d===s.date):vDays().length;
     const tr=make('tr',s.state+(dayIdx%2?' band':'')+(selStop===s?' sel':''));
-    const cells=[[ptNo(s),'num'],[s.date?thDMY(s.date):PREP_TXT,s.date?'':'prep-c'],[s.slot?sellStart(s)+' น.':PREP_TXT,s.slot?'':'prep-c'],[label(s)],['อ.'+s.amphoe,'hide-s']];
+    const cells=[[ptNo(s),'num'],[s.date?thDMY(s.date):PREP_TXT,s.date?'':'prep-c'],[s.slot?sellStart(s)+' น.':PREP_TXT,s.slot?'':'prep-c'],[label(s)],[s.tambon?'ต.'+s.tambon:'–','hide-s'],['อ.'+s.amphoe,'hide-s']];
     cells.forEach(([t,c])=>tr.append(make('td',c||'',t)));
     const td=make('td'); td.append(make('span','pill '+s.state,stateLabel[s.state])); tr.append(td);
     const sv=saleOf(s);
@@ -604,7 +614,7 @@ function renderTable(){
   });
   const tf=el('tfoot'); tf.textContent='';
   const ftr=make('tr');
-  ftr.append(make('td',null,''), make('td',null,''), make('td',null,''), make('td',null,`ยอดรวม ${rows.length} จุด`), make('td','hide-s',''), make('td',null,''));
+  ftr.append(make('td',null,''), make('td',null,''), make('td',null,''), make('td',null,`ยอดรวม ${rows.length} จุด`), make('td','hide-s',''), make('td','hide-s',''), make('td',null,''));
   const totPct = has&&(sumA+sumB)>0 ? (sumB/(sumA+sumB)*100).toFixed(2) : '–';
   ftr.append(make('td','num',has?baht(sumA):'–'), make('td','num',has?baht(sumB):'–'), make('td','num',totPct));
   tf.append(ftr);
@@ -658,7 +668,7 @@ function renderStrip(){
 let navReturn=null;
 function openNav(s){
   el('nav-title').textContent = s.place;
-  el('nav-meta').textContent = s.date ? `จุดที่ ${ptNo(s)} · ${thShort(s.date)} ช่วง${s.slot} ${sellRange(s)} น. · อ.${s.amphoe}` : `จุดที่ ${ptNo(s)} · วันและเวลา${PREP_TXT} · อ.${s.amphoe}`;
+  el('nav-meta').textContent = s.date ? `จุดที่ ${ptNo(s)} · ${thShort(s.date)} ช่วง${s.slot} ${sellRange(s)} น. · ${locLabel(s)}` : `จุดที่ ${ptNo(s)} · วันและเวลา${PREP_TXT} · ${locLabel(s)}`;
   el('nav-go').href = `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}&travelmode=driving`;
   navReturn = document.activeElement;
   el('nav-ov').hidden = false;
@@ -693,6 +703,7 @@ const ICONS={
     const lg=make('div','g-legend'); const l1=make('span'); l1.append('จ่าย ', make('b',null,pay+'%')); const l2=make('span',null,`ประหยัด ${g.was-g.now} บาท/${g.unit}`); lg.append(l2);
     li.append(ic,main,pr); ul.append(li);
   });
+  const more=make('li','good good-more'); more.append(make('div','g-more-txt','และสินค้าอื่นๆ อีกหลายรายการ')); ul.append(more);
 })();
 const MONTHS={oct:'ตุลาคม 2569',nov:'พฤศจิกายน 2569',dec:'ธันวาคม 2569'};
 function showMonth(m){
@@ -867,6 +878,7 @@ async function syncFromSheet(manual){
       const hh = sellStartV ? parseFloat(sellStartV) : null;
       const slot = date ? (hh!=null && hh<12 ? 'เช้า' : 'บ่าย') : null;
       const place = o['สถานที่จัดกิจกรรม']||'';
+      const tambon = o['ตำบล']||'';
       const amphoe = o['อำเภอ']||'';
       const note = o['หมายเหตุ']||'';
       const coordRaw = o['ค่าพิกัด']||'';
@@ -879,7 +891,7 @@ async function syncFromSheet(manual){
       const month = date ? ({'10':'oct','11':'nov','12':'dec'}[date.slice(5,7)]||null) : null;
       let s = stops.find(x=>x.seq===seq);
       if(!s){ s={seq}; stops.push(s); }
-      Object.assign(s,{date,slot,place,amphoe,note,lat:isNaN(lat)?null:lat,lon:isNaN(lon)?null:lon,
+      Object.assign(s,{date,slot,place,tambon:tambon||null,amphoe,note,lat:isNaN(lat)?null:lat,lon:isNaN(lon)?null:lon,
         saleA:isNaN(saleA)?null:saleA, saleB:isNaN(saleB)?null:saleB, sellStart:sellStartV,
         type:typeOf(place||'วัด'), month: month||s.month||'oct'});
     });

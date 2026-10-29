@@ -1,10 +1,3 @@
-<!doctype html>
-<html lang="th">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="ข้อมูลโครงการ ไทยช่วยไทยลดค่าครองชีพ จังหวัดพิจิตร โดยสำนักงานพาณิชย์จังหวัดพิจิตร">
-<style>html{box-sizing:border-box}*,*::before,*::after{box-sizing:inherit}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>ไทยช่วยไทย ต.ค. 69</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,7 +10,7 @@
   --green:#05935F; --green-deep:#0B5FA5; --green-soft:#DCF5EA; --gold:#FACC15;
   --land:#D8F2E6; --land-hi:#86D9B8; --land-line:#FFFFFF; --map-water:#E1EFFB;
   --ok:#05935F; --today:#F97316; --on-green:#FFFFFF; --on-green-muted:#DCEBFA;
-  --t-morning:#05935F; --t-afternoon:#2563EB; --cross:#DC2626; --band:#E4F1FA;
+  --t-morning:#05935F; --t-afternoon:#2563EB; --cross:#DC2626; --done:#DC2626; --band:#E4F1FA;
   --mast-a:#047857; --mast-b:#0B5FA5;
   --f-display:"Noto Serif Thai",Georgia,"Times New Roman",serif;
   --f-body:"Sarabun","Leelawadee UI","Tahoma",system-ui,sans-serif;
@@ -29,7 +22,7 @@
   --green:#34D399; --green-deep:#1E4E8C; --green-soft:#0F2E28; --gold:#FDE047;
   --land:#123027; --land-hi:#1D5C49; --land-line:#08131C; --map-water:#0C1D2B;
   --ok:#4ADE80; --today:#FB923C; --on-green:#FFFFFF; --on-green-muted:#C7DDF5;
-  --t-morning:#34D399; --t-afternoon:#60A5FA; --cross:#F87171;
+  --t-morning:#34D399; --t-afternoon:#60A5FA; --cross:#F87171; --done:#EF4444;
   --mast-a:#065F46; --mast-b:#1E40AF; --cross:#F2857A; color-scheme:dark}}
 :root[data-theme="dark"]{
   --band:#122338;
@@ -37,7 +30,7 @@
   --green:#34D399; --green-deep:#1E4E8C; --green-soft:#0F2E28; --gold:#FDE047;
   --land:#123027; --land-hi:#1D5C49; --land-line:#08131C; --map-water:#0C1D2B;
   --ok:#4ADE80; --today:#FB923C; --on-green:#FFFFFF; --on-green-muted:#C7DDF5;
-  --t-morning:#34D399; --t-afternoon:#60A5FA; --cross:#F87171;
+  --t-morning:#34D399; --t-afternoon:#60A5FA; --cross:#F87171; --done:#EF4444;
   --mast-a:#065F46; --mast-b:#1E40AF; --cross:#F2857A; color-scheme:dark}
 
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
@@ -112,8 +105,9 @@ main.wrap{padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
 .stop circle.dot{stroke:var(--surface);stroke-width:2;vector-effect:non-scaling-stroke}
 .stop text{fill:#fff;font-size:10.5px;font-weight:600;text-anchor:middle;pointer-events:none}
 .stop.done{opacity:.8}
-.stop:not(.today) .ring,.stop:not(.done) .x{display:none}
-.stop .x{fill:none;stroke:var(--cross);stroke-width:3;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.stop:not(.today) .ring,.stop:not(.done) .doneBadge,.stop:not(.done) .doneCheck{display:none}
+.stop .doneBadge{fill:#FFFFFF;stroke:var(--surface);stroke-width:1}
+.stop .doneCheck{fill:none;stroke:#111827;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
 .stop.dim{opacity:.15}
 .stop .ring{fill:none;stroke:var(--today);stroke-width:2.5;vector-effect:non-scaling-stroke}
 .stop.sel circle.dot{stroke:var(--ink);stroke-width:2.5}
@@ -129,6 +123,8 @@ main.wrap{padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
 .sw.m{background:var(--t-morning)}.sw.a{background:var(--t-afternoon)}
 .sw.p{background:var(--muted)}
 .sw.t{background:none;border:2px solid var(--today)}
+.sw-done{position:relative;width:14px;height:14px;flex:none;border-radius:50%;background:var(--done)}
+.sw-done::after{content:"✓";position:absolute;right:-1px;bottom:-1px;width:8px;height:8px;box-sizing:border-box;border-radius:1.5px;background:#FFFFFF;border:1px solid var(--surface);color:#111827;font-size:6px;font-weight:900;line-height:7px;text-align:center}
 
 .info{padding:14px 18px;border-top:1px solid var(--land-hi);min-height:92px;background:var(--green-soft);border-radius:0 0 var(--radius) var(--radius)}
 .info .n{color:var(--green)}
@@ -148,12 +144,11 @@ main.wrap{padding-block:20px 40px;display:flex;flex-direction:column;gap:20px}
 .days .daybtn:hover{background:var(--green-soft)}
 .days .daybtn[aria-pressed="true"]{background:var(--land-hi);border-left-color:var(--green)}
 .cal{position:relative;text-align:center;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--surface);align-self:start}
-.daybtn.done .cal::before,.daybtn.done .cal::after{content:"";position:absolute;left:50%;top:50%;width:120%;height:3px;border-radius:2px;background:var(--cross);transform:translate(-50%,-50%) rotate(40deg)}
-.daybtn.done .cal::after{transform:translate(-50%,-50%) rotate(-40deg)}
-.xm{color:var(--cross);font-weight:700;margin-right:6px}
+.daybtn.done .cal::before{content:none}
+.daybtn.done .cal::after{content:"✓";position:absolute;right:2px;bottom:2px;width:12px;height:12px;box-sizing:border-box;border-radius:2px;background:#FFFFFF;border:1px solid var(--surface);color:#111827;font-size:9px;font-weight:900;line-height:11px;text-align:center}
 .cal .w{font-size:11px;background:var(--green);color:var(--on-green);padding:1px 0}
 .cal .d{font-family:var(--f-display);font-size:20px;font-weight:600;line-height:1.35;font-variant-numeric:tabular-nums}
-.daybtn.done .cal .w{background:var(--muted)}
+.daybtn.done .cal .w{background:var(--done)}
 .daybtn.today .cal{border-color:var(--today)}
 .daybtn.today .cal .w{background:var(--today)}
 .dstops{display:flex;flex-direction:column;gap:3px;min-width:0}
@@ -279,9 +274,6 @@ tfoot td{font-weight:700;background:var(--green-soft);border-top:2px solid var(-
 .notes p{margin:0;padding:12px 18px;font-size:14px;color:var(--green-deep)}
 .notes b{font-family:var(--f-display);font-weight:600;color:var(--green);margin-right:10px}
 </style>
-</head>
-<body>
-
 
 <header class="mast">
   <div class="wrap">
@@ -312,7 +304,7 @@ tfoot td{font-weight:700;background:var(--green-soft);border-top:2px solid var(-
       <div class="ph"><h2 id="map-title">แผนที่จุดลงพื้นที่</h2><span class="sub">ลากเพื่อเลื่อน · เลื่อนล้อหรือปุ่ม + − เพื่อซูม</span><button type="button" class="clearbtn" id="clear-map" hidden>✕ ล้างตัวเลือก</button></div>
       <div class="mapbox" id="mapbox">
         <div class="zoom"><button id="zin" aria-label="ซูมเข้า">+</button><button id="zout" aria-label="ซูมออก">−</button><button id="zfit" aria-label="ดูทั้งจังหวัด">⤢</button></div>
-        <div class="legend"><span><i class="sw m"></i>ช่วงเช้า</span><span><i class="sw a"></i>ช่วงบ่าย</span><span><i class="sw p"></i>รอกำหนดวัน</span><span><i class="sw t"></i>วันนี้</span><span><b class="xm" style="margin:0">✕</b>จัดแล้ว</span></div>
+        <div class="legend"><span><i class="sw m"></i>ช่วงเช้า</span><span><i class="sw a"></i>ช่วงบ่าย</span><span><i class="sw p"></i>รอกำหนดวัน</span><span><i class="sw t"></i>วันนี้</span><span><i class="sw-done"></i>จัดแล้ว</span></div>
       </div>
       <div class="info" id="info" aria-live="polite"></div>
     </section>
@@ -518,9 +510,10 @@ function buildStopNodes(){
     .on('click',(e,s)=>{selectStop(s,true);openNav(s);})
     .on('keydown',(e,s)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectStop(s,true);openNav(s);}});
   stopNodes.append('circle').attr('class','ring').attr('r',12);
-  stopNodes.append('circle').attr('class','dot').attr('r',10).attr('fill',s=>s.slot==='เช้า'?'var(--t-morning)':s.slot==='บ่าย'?'var(--t-afternoon)':'var(--muted)');
+  stopNodes.append('circle').attr('class','dot').attr('r',10).attr('fill',s=>s.state==='done'?'var(--done)':s.slot==='เช้า'?'var(--t-morning)':s.slot==='บ่าย'?'var(--t-afternoon)':'var(--muted)');
   stopNodes.append('text').attr('dy','0.36em').text(s=>s.seq);
-  stopNodes.append('path').attr('class','x').attr('d','M-9,-9L9,9M9,-9L-9,9');
+  stopNodes.append('rect').attr('class','doneBadge').attr('x',4.5).attr('y',4.5).attr('width',8).attr('height',8).attr('rx',1.5);
+  stopNodes.append('path').attr('class','doneCheck').attr('d','M6.1,8.3L7.6,9.8L10.4,6.3');
 }
 let k=1;
 buildStopNodes();
@@ -912,6 +905,3 @@ async function syncFromSheet(manual){
 el('sheet-refresh').onclick = ()=>syncFromSheet(true);
 syncFromSheet(false);
 </script>
-
-</body>
-</html>

@@ -1,3 +1,9 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>html{box-sizing:border-box;-webkit-text-size-adjust:100%}*,*::before,*::after{box-sizing:inherit}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>ไทยช่วยไทย ต.ค. 69</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -184,6 +190,30 @@ tr.sel td{background:var(--land-hi)}
 td.prep-c{color:var(--muted);font-style:italic}
 td.num,th.num{text-align:right}
 @media (max-width:620px){.hide-s{display:none}}
+/* มือถือ: ตารางเปลี่ยนเป็นการ์ดรายจุด */
+@media (max-width:620px){
+  .tw{overflow-x:visible}
+  table,tbody,tfoot,tr,td{display:block}
+  thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  tbody tr,tfoot tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 14px;padding:12px 16px;border-top:1px solid var(--line)}
+  tbody tr.band{background:var(--band)}
+  tbody tr.sel{background:var(--land-hi)}
+  tbody tr:hover{background:var(--green-soft)}
+  td,tr.band td,tr.sel td,tbody tr:hover td,tfoot td{background:none;border:0;padding:0;min-width:0}
+  td.num{text-align:left}
+  td::before{content:attr(data-label);display:block;font-size:11px;font-weight:400;font-style:normal;color:var(--muted);line-height:1.4}
+  #tbody td.hide-s{display:block}
+  #tbody td:nth-child(4){grid-column:1/-1;order:-1;font-weight:600;font-size:15px;color:var(--ink)}
+  #tbody tr.done td:nth-child(4){color:var(--ink)}
+  #tbody td:nth-child(4)::before{content:none}
+  #tbody td:nth-child(1){order:-2;grid-column:1/-1;font-size:12px;font-weight:600;color:var(--green)}
+  #tbody td:nth-child(1)::before{content:"จุดที่ ";display:inline;font-size:inherit;font-weight:inherit;color:inherit}
+  tfoot tr{background:var(--green-soft);border-top:2px solid var(--green)}
+  tfoot td:empty{display:none}
+  #tfoot td{border:0;background:none;padding:0}
+  tfoot td:nth-child(4){grid-column:1/-1}
+  tfoot td:nth-child(4)::before{content:none}
+}
 tfoot td{font-weight:700;background:var(--green-soft);border-top:2px solid var(--green);color:var(--ink)}
 .foot{font-size:12px;color:var(--muted)}
 .side{min-width:0;position:relative}
@@ -275,6 +305,9 @@ tfoot td{font-weight:700;background:var(--green-soft);border-top:2px solid var(-
 .notes b{font-family:var(--f-display);font-weight:600;color:var(--green);margin-right:10px}
 </style>
 
+
+</head>
+<body>
 <header class="mast">
   <div class="wrap">
     <div>
@@ -588,6 +621,7 @@ function renderFilters(){
     f.append(c);
   });
 }
+const TH_LABELS=()=>[...document.querySelectorAll('#tbody')[0].closest('table').tHead.rows[0].cells].map(c=>c.textContent.trim());
 function renderTable(){
   const tb=el('tbody'); tb.textContent='';
   const rows=stops.filter(s=>inView(s)&&(ampFilter==='all'||s.amphoe===ampFilter));
@@ -602,6 +636,7 @@ function renderTable(){
     if(sv[0]!=null){sumA+=sv[0];sumB+=sv[1]||0;has=true;}
     const pct = (sv[0]!=null && sv[1]!=null && (sv[0]+sv[1])>0) ? (sv[1]/(sv[0]+sv[1])*100).toFixed(2) : '–';
     tr.append(make('td','num',baht(sv[0])), make('td','num',baht(sv[1])), make('td','num',pct));
+    [...tr.children].forEach((td,i)=>td.dataset.label=TH_LABELS()[i]||'');
     tr.onclick=()=>{selectStop(s,true); el('mapbox').scrollIntoView({behavior:motionOK?'smooth':'auto',block:'center'});};
     tb.append(tr);
   });
@@ -610,6 +645,7 @@ function renderTable(){
   ftr.append(make('td',null,''), make('td',null,''), make('td',null,''), make('td',null,`ยอดรวม ${rows.length} จุด`), make('td','hide-s',''), make('td','hide-s',''), make('td',null,''));
   const totPct = has&&(sumA+sumB)>0 ? (sumB/(sumA+sumB)*100).toFixed(2) : '–';
   ftr.append(make('td','num',has?baht(sumA):'–'), make('td','num',has?baht(sumB):'–'), make('td','num',totPct));
+  [...ftr.children].forEach((td,i)=>td.dataset.label=TH_LABELS()[i]||'');
   tf.append(ftr);
 }
 
@@ -905,3 +941,6 @@ async function syncFromSheet(manual){
 el('sheet-refresh').onclick = ()=>syncFromSheet(true);
 syncFromSheet(false);
 </script>
+
+</body>
+</html>

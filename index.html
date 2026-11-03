@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <style>html{box-sizing:border-box;-webkit-text-size-adjust:100%}*,*::before,*::after{box-sizing:inherit}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
-<title>ไทยช่วยไทย ต.ค. 69</title>
+<title>ไทยช่วยไทย พิจิตร</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -225,6 +225,7 @@ tfoot td{font-weight:700;background:var(--green-soft);border-top:2px solid var(-
   .side-in > .panel:first-child .days{flex:1;min-height:0}
 }
 @media (max-width:880px){ .days{max-height:520px} }
+@media (max-width:480px){.good{grid-template-columns:34px minmax(0,1fr);gap:6px 10px;padding:12px 14px}.g-ic{grid-row:span 2}.g-price{grid-column:2;grid-row:auto;text-align:left;justify-self:start;align-self:start}.g-row{justify-content:flex-start}.g-ic{width:34px}.g-ic svg{width:28px;height:28px}.g-was{font-size:12px}.g-price{min-width:0}.g-badge{font-size:12px}}
 .goods-list{list-style:none;margin:0;padding:6px 0}
 .good{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:12px 18px}
 .good+.good{border-top:1px solid var(--line)}
@@ -237,7 +238,8 @@ tfoot td{font-weight:700;background:var(--green-soft);border-top:2px solid var(-
 .g-was s{text-decoration-color:var(--cross);text-decoration-thickness:1.5px}
 .g-price{text-align:right;grid-row:span 2;align-self:center}
 .g-now{font-family:var(--f-display);font-weight:600;font-size:28px;line-height:1;color:var(--green);font-variant-numeric:tabular-nums}
-.g-u{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.g-u{font-size:12px;color:var(--muted);white-space:nowrap}
+.g-np{display:inline-flex;align-items:baseline;gap:4px}
 .g-row{display:flex;align-items:center;justify-content:flex-end;gap:8px}
 .g-badge{display:inline-block;background:var(--green-deep);color:#fff;font-size:12px;font-weight:600;border-radius:3px;padding:0 7px;line-height:20px}
 .g-bar{grid-column:2 / -1;position:relative;height:10px;border-radius:5px;background:repeating-linear-gradient(135deg,var(--green-soft) 0 4px,var(--land-hi) 4px 7px);overflow:hidden;margin-top:6px}
@@ -709,31 +711,39 @@ el('nav-go').addEventListener('click', ()=>setTimeout(closeNav, 300));
 el('nav-ov').addEventListener('click', e=>{ if(e.target===el('nav-ov')) closeNav(); });
 document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !el('nav-ov').hidden) closeNav(); });
 const GOODS=[
-  {name:'ไข่ไก่เบอร์ 2',unit:'แผง',now:90,was:145,icon:'egg'},
-  {name:'น้ำตาลทราย',unit:'กก.',now:20,was:28,icon:'sugar'},
-  {name:'น้ำมันพืช',unit:'ขวด',now:35,was:55,icon:'oil'}
+  {name:'ไข่ไก่ เบอร์ 2',spec:'แผง 30 ฟอง',unit:'แผง',now:90,was:145,icon:'egg'},
+  {name:'น้ำมันพืช',spec:'ขวด 1 ลิตร',unit:'ขวด',now:35,was:52,icon:'oil'},
+  {name:'น้ำตาลทราย',spec:'ถุง 1 กก.',unit:'ถุง',now:20,was:28,icon:'sugar'},
+  {name:'ปลากระป๋อง',spec:'แพ็ค 5 กระป๋อง',unit:'แพ็ค',now:50,was:67,icon:'can',from:'nov'},
+  {name:'บะหมี่กึ่งสำเร็จรูป',spec:'แพ็ค 10 ซอง',unit:'แพ็ค',now:50,was:63,icon:'noodle',from:'nov'},
+  {name:'น้ำยาปรับผ้านุ่ม',spec:'ถุง 1,800 มล.',unit:'ถุง',now:30,was:44,icon:'softener',from:'nov'}
 ];
 const ICONS={
   egg:'<svg viewBox="0 0 32 32"><path d="M16 4c5 0 9 8 9 15a9 9 0 0 1-18 0C7 12 11 4 16 4z" fill="currentColor" opacity=".18"/><path d="M16 4c5 0 9 8 9 15a9 9 0 0 1-18 0C7 12 11 4 16 4z" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
   sugar:'<svg viewBox="0 0 32 32"><path d="M9 9h14l2 19H7z" fill="currentColor" opacity=".18"/><path d="M9 9h14l2 19H7zM9 9l2-4h10l2 4M12 16h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>',
-  oil:'<svg viewBox="0 0 32 32"><path d="M13 4h6v4l3 4v15a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2V12l3-4z" fill="currentColor" opacity=".18"/><path d="M13 4h6v4l3 4v15a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2V12l3-4zM10 17h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>'
+  oil:'<svg viewBox="0 0 32 32"><path d="M13 4h6v4l3 4v15a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2V12l3-4z" fill="currentColor" opacity=".18"/><path d="M13 4h6v4l3 4v15a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2V12l3-4zM10 17h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>',
+  can:'<svg viewBox="0 0 32 32"><path d="M7 9h18v16a3 3 0 0 1-3 3H10a3 3 0 0 1-3-3z" fill="currentColor" opacity=".18"/><path d="M7 9h18v16a3 3 0 0 1-3 3H10a3 3 0 0 1-3-3zM7 9c0-2 4-3 9-3s9 1 9 3M7 14h18M7 22h18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>',
+  noodle:'<svg viewBox="0 0 32 32"><path d="M5 16h22a11 11 0 0 1-11 11A11 11 0 0 1 5 16z" fill="currentColor" opacity=".18"/><path d="M5 16h22a11 11 0 0 1-11 11A11 11 0 0 1 5 16zM11 12c-2-2 2-3 0-6M16 12c-2-2 2-3 0-6M21 12c-2-2 2-3 0-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>',
+  softener:'<svg viewBox="0 0 32 32"><path d="M9 11h14l2 17H7z" fill="currentColor" opacity=".18"/><path d="M9 11h14l2 17H7zM13 11V6h6v5M16 17c-2 3-3 4-3 5.5a3 3 0 0 0 6 0c0-1.5-1-2.5-3-5.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>'
 };
-(function renderGoods(){
-  const ul=el('goods');
-  GOODS.forEach(g=>{
+/* สินค้าที่มี from:'nov' แสดงตั้งแต่เดือนพฤศจิกายน (ซ่อนในแท็บตุลาคม) */
+function renderGoods(m){
+  const ul=el('goods'); ul.textContent='';
+  GOODS.filter(g=>!(g.from==='nov'&&m==='oct')).forEach(g=>{
     const off=Math.round((g.was-g.now)/g.was*100), pay=100-off;
     const li=make('li','good');
     const ic=make('div','g-ic'); ic.innerHTML=ICONS[g.icon]; ic.setAttribute('aria-hidden','true');
     const main=make('div','g-main'); main.append(make('div','g-name',g.name));
-    const was=make('div','g-was','ปกติ '); const s=make('s',null,String(g.was)); was.append(s,` บาท/${g.unit}`); main.append(was);
-    const pr=make('div','g-price'); const row=make('div','g-row'); row.append(make('span','g-badge',`ลด ${off}%`), make('span','g-now',String(g.now))); pr.append(row, make('span','g-u',`บาท/${g.unit}`));
+    const was=make('div','g-was',(g.spec?g.spec+' · ':'')+'ปกติ '); const s=make('s',null,String(g.was)); was.append(s,` บาท/${g.unit}`); main.append(was);
+    const pr=make('div','g-price'); const row=make('div','g-row'); const np=make('span','g-np'); np.append(make('span','g-now',String(g.now)), make('span','g-u',`บาท/${g.unit}`)); row.append(make('span','g-badge',`ลด ${off}%`), np); pr.append(row);
     const bar=make('div','g-bar'); bar.setAttribute('role','img'); bar.setAttribute('aria-label',`จ่าย ${pay}% ของราคาปกติ ลด ${off}%`);
     const fill=make('i'); fill.style.width=pay+'%'; bar.append(fill);
     const lg=make('div','g-legend'); const l1=make('span'); l1.append('จ่าย ', make('b',null,pay+'%')); const l2=make('span',null,`ประหยัด ${g.was-g.now} บาท/${g.unit}`); lg.append(l2);
     li.append(ic,main,pr); ul.append(li);
   });
   const more=make('li','good good-more'); more.append(make('div','g-more-txt','และสินค้าอื่นๆ อีกหลายรายการ')); ul.append(more);
-})();
+}
+renderGoods('all');
 const MONTHS={oct:'ตุลาคม 2569',nov:'พฤศจิกายน 2569',dec:'ธันวาคม 2569'};
 function showMonth(m){
   document.querySelectorAll('.mtab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.m===m)));
@@ -743,6 +753,7 @@ function showMonth(m){
   el('month-main').hidden=!show; el('status').hidden=!show; el('prep').hidden=show;
   el('mstrip').hidden = m!=='all';
   el('ig-btn').hidden = !show;
+  renderGoods(m);
   curMonth = m; selDay=null; selStop=null; ampFilter='all';
   renderHead(); renderDays(); renderFilters(); renderTable(); renderInfo(); applyMap();
   if(show) fitTo(m==='all'?null:stops.filter(inView), 0);
